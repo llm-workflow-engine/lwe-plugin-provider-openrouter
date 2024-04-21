@@ -1,53 +1,68 @@
 import os
 from typing import Optional
+import requests
 
 from langchain_openai import ChatOpenAI
 from langchain_core.pydantic_v1 import Field
 
 from lwe.core.provider import Provider, PresetValue
-from lwe.core import constants
 
 OPENROUTER_API_BASE = "https://openrouter.ai/api/v1"
 OPENROUTER_DEFAULT_MODEL = "openai/gpt-3.5-turbo"
 
 
 class ChatOpenRouter(ChatOpenAI):
-    openai_api_base: str
-    openai_api_key: str
-    model_name: str = Field(default=OPENROUTER_DEFAULT_MODEL)
+
+    model_name: str = Field(default=OPENROUTER_DEFAULT_MODEL, alias="model")
     """Model name to use."""
+    openai_api_base: Optional[str] = Field(default=OPENROUTER_API_BASE, alias="base_url")
+    """Base URL path for API requests, leave blank if not using a proxy or service
+        emulator."""
 
     @property
     def _llm_type(self):
         """Return type of llm."""
         return "chat_openrouter"
 
-    def __init__(self,
-                 model_name: str,
-                 openai_api_key: Optional[str] = None,
-                 openai_api_base: str = OPENROUTER_API_BASE,
-                 **kwargs):
-        openai_api_key = openai_api_key or os.getenv('OPENROUTER_API_KEY')
-        super().__init__(openai_api_base=openai_api_base,
-                         openai_api_key=openai_api_key,
-                         model_name=model_name, **kwargs)
+    def __init__(self, **kwargs):
+        if 'openai_api_key' in kwargs:
+            openai_api_key = kwargs.pop('openai_api_key')
+        else:
+            openai_api_key = os.getenv('OPENROUTER_API_KEY')
+        if not openai_api_key:
+            raise ValueError("OPENROUTER_API_KEY is not set")
+        super().__init__(openai_api_key=openai_api_key, **kwargs)
 
 
 class ProviderOpenrouter(Provider):
     """
-    Access to OpenAI chat models via the OpenAI API
+    Access to OpenRouter chat models via the OpenAI API
     """
+
+    def __init__(self, config=None):
+        self.models = self.fetch_models()
+        super().__init__(config)
+
+    def fetch_models(self):
+        models_url = f"{OPENROUTER_API_BASE}/models"
+        try:
+            response = requests.get(models_url)
+            response.raise_for_status()
+            models_data = response.json()
+            models_list = models_data.get('data')
+            if not models_list:
+                raise ValueError('Could not retrieve models')
+            models = {model['id']: {'max_tokens': model['context_length']} for model in models_list}
+            return models
+        except requests.exceptions.RequestException as e:
+            raise ValueError(f"Could not retrieve models: {e}")
 
     @property
     def capabilities(self):
         return {
             "chat": True,
             'validate_models': False,
-            "models": {
-                "openai/gpt-3.5-turbo": {
-                    "max_tokens": 16384,
-                },
-            },
+            "models": self.models,
         }
 
     @property
