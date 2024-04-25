@@ -22,7 +22,7 @@ class ChatOpenRouter(ChatOpenAI):
     @property
     def _llm_type(self):
         """Return type of llm."""
-        return "chat_openrouter"
+        return "openrouter"
 
     def __init__(self, **kwargs):
         if 'openai_api_key' in kwargs:
