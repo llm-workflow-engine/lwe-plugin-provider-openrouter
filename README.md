@@ -37,6 +37,19 @@ plugins:
   enabled:
     - provider_openrouter
     # Any other plugins you want enabled...
+  # THIS IS OPTIONAL -- By default the plugin loads all model data via an API
+  # call on startup. This does make startup time longer, and the CLI completion
+  # for selecting models is very long!
+  # You can instead provide a 'models' object here with the relevant data, and
+  # It will be used instead of an API call.
+  provider_openrouter:
+    models:
+      # 'id' parameter of the model as it appears in the API.
+      # This is also listed on the model's summary page on the OpenRouter
+      # website.
+      "mistralai/mixtral-8x22b-instruct":
+        # The only parameter, and it's required.
+        max_tokens: 65536
 ```
 
 ## Usage
