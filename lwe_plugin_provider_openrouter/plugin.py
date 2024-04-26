@@ -8,7 +8,7 @@ from langchain_core.pydantic_v1 import Field
 from lwe.core.provider import Provider, PresetValue
 
 OPENROUTER_API_BASE = "https://openrouter.ai/api/v1"
-OPENROUTER_DEFAULT_MODEL = "openai/gpt-3.5-turbo"
+OPENROUTER_DEFAULT_MODEL = "openrouter/auto"
 
 
 class ChatOpenRouter(ChatOpenAI):
