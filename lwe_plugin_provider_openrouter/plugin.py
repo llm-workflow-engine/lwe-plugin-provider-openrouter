@@ -39,10 +39,6 @@ class ProviderOpenrouter(Provider):
     Access to OpenRouter chat models via the OpenAI API
     """
 
-    def __init__(self, config=None):
-        super().__init__(config)
-        self.models = self.config.get('plugins.provider_openrouter.models') or self.fetch_models()
-
     def fetch_models(self):
         models_url = f"{OPENROUTER_API_BASE}/models"
         try:
