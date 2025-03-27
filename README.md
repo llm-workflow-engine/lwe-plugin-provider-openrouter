@@ -3,6 +3,7 @@
 OpenRouter Provider plugin for [LLM Workflow Engine](https://github.com/llm-workflow-engine/llm-workflow-engine)
 
 Access to [OpenRouter](https://openrouter.ai/models) models.
+
 ## Installation
 
 ### From packages
@@ -29,6 +30,10 @@ pip install -e .
 ```
 
 ## Configuration
+
+Get an [API key](https://openrouter.ai/settings/keys) from OpenRouter.
+
+Export the key to the `OPENROUTER_API_KEY` environment variable.
 
 Add the following to `config.yaml` in your profile:
 
